@@ -39,7 +39,7 @@ int comp(const void * elem1, const void * elem2) {
   return 0;
 }
 
-vertex * getVertexList(int n, edgeList edges, int e) {
+vertexList getVertexList(int n, edgeList edges, int e) {
   qsort(edges, e, sizeof(edge), comp);
 
   vertex * ret = malloc(n * sizeof(vertex));
