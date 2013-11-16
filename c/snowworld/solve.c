@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <tgmath.h>
 #include "math.h"
 #include "solve.h"
 
@@ -35,8 +36,6 @@ void printVertexList(int n, vertexList vlist) {
   }
 }
 
-/* Solves and prints out solution */
-
 double estimate(int n, vertex *vlist, bool visited[n]) {
   double total = 0;
   for (int i=0; i<n; i++) {
@@ -56,10 +55,10 @@ double minmax(int n, vertex *vlist, bool visited[n], int cur,
               int path[n], int depth, double curval) {
   //printf("depth %d visiting %d\n", depth, cur);
   path[depth] = cur;
-  
+
   edgeList edges = vlist[cur].edges;
   int degree = vlist[cur].degree;
-  
+
   int first = -1;
   for (int i=0; i<degree; i++) {
     if (!visited[edges[i].to]) {
@@ -78,11 +77,11 @@ double minmax(int n, vertex *vlist, bool visited[n], int cur,
     visited[first] = false;
     //printf("unmarking %d as visited\n", first);
     for (int i=first+1; i<degree; i++) {
-      
+
       int neighbor = edges[i].to;
       if (!visited[neighbor]) {
         visited[neighbor] = true;
-        
+
         double est = estimate(n, vlist, visited) + edges[i].snow;
         //    printf("level %d | %lf  %lf\n", depth, est, ret);
         if (est * 0.7 >= ret) {
@@ -93,18 +92,18 @@ double minmax(int n, vertex *vlist, bool visited[n], int cur,
             ret = realval;
           }
         }
-        
+
         visited[neighbor] = false;
       }
     }
   } else {
     printPathIfGreater(path, depth, curval);
   }
-  
+
   path[depth] = -1;
 
   return ret;
-      
+
 }
 
 int comp(const void * elem1, const void * elem2) {
@@ -196,7 +195,7 @@ int *greedy(vertexList vertices, edgeList edges, int n) {
         break;
       }
     }
- 
+
     if (i == current.degree) {
       break;
     }
