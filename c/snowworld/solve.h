@@ -1,7 +1,7 @@
 #ifndef SOLVE_H
 #define SOLVE_H
 
-typedef struct elem{
+typedef struct elem {
   int to;
   int from;
   double snow;

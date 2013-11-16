@@ -48,7 +48,6 @@ vertex * getVertexList(int n, edgeList edges, int e) {
   vertex * ret = malloc(n * sizeof(vertex));
   
   for (int i=0; i<e; i++) {
-    printf("%d %d %lf\n", edges[i].to, edges[i].from, edges[i].snow);
     ret[edges[i].to].degree++;
     ret[edges[i].from].degree++;
   }
