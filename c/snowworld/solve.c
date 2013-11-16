@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
 #include "math.h"
 #include "solve.h"
 
@@ -11,7 +13,8 @@ int main(){
   edgeList edges = getEdgeList(e);
   vertex *vlist = getVertexList(n, edges, e);
   int** adjMat = adjacencyMatrix(n, edges, e);
-  solve(n, vlist);
+
+  solve(NULL, edges, n);
 
   freeMatrix(adjMat, n);
   return 0;
@@ -28,12 +31,6 @@ void printVertexList(int n, vertex * vlist) {
   }
 }
 
-/* Solves and prints out solution */
-
-void solve(int n, vertex *vlist) {
-  printVertexList(n, vlist);
-}
-
 int comp(const void * elem1, const void * elem2) {
   double s1 = ((edge*)elem1)->snow;
   double s2 = ((edge*)elem2)->snow;
@@ -44,17 +41,17 @@ int comp(const void * elem1, const void * elem2) {
 
 vertex * getVertexList(int n, edgeList edges, int e) {
   qsort(edges, e, sizeof(edge), comp);
-  
+
   vertex * ret = malloc(n * sizeof(vertex));
-  
+
   for (int i=0; i<e; i++) {
     printf("%d %d %lf\n", edges[i].to, edges[i].from, edges[i].snow);
     ret[edges[i].to].degree++;
     ret[edges[i].from].degree++;
   }
-  
+
   int count[n];
-  
+
   for (int i=0; i<n; i++) {
     ret[i].edges = malloc(ret[i].degree * sizeof(edge));
     count[i] = 0;
@@ -65,7 +62,7 @@ vertex * getVertexList(int n, edgeList edges, int e) {
     int b = edges[i].from;
     int ca = count[a]++;
     int cb = count[b]++;
-    
+
     ret[a].edges[ca].from = a;
     ret[a].edges[ca].to = b;
     ret[a].edges[ca].snow = edges[i].snow;
@@ -74,11 +71,20 @@ vertex * getVertexList(int n, edgeList edges, int e) {
     ret[b].edges[cb].to = a;
     ret[b].edges[cb].snow = edges[i].snow;
   }
-  
+
   return ret;
 }
 
-/* Given functions */
+/* Solves and prints out solution */
+void solve(vertexList vertices, edgeList edges, int n){
+  bool visited[n];
+  memset(visited, 0, sizeof(bool)*n);
+  printMaxDFS(vertices, edges[0].to, visited);
+}
+
+void printMaxDFS(vertexList vertices, int currentVertex, bool visited[]) {
+  return;
+}
 
 /* Reads from stdin and forms an edgeList of type edgeList */
 edgeList getEdgeList(int e){
