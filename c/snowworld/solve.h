@@ -18,6 +18,7 @@ edgeList getEdgeList(int e);
 int **adjacencyMatrix(int n, edgeList edges, int e);
 vertex *getVertexList(int n, edgeList edges, int e);
 void printVertexList(int n, vertex * vlist);
+double estimate(int n, vertex *vlist, bool consider[n]);
 void freeMatrix(int **adjMat, int n);
 void solve();
 

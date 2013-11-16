@@ -3,6 +3,9 @@
 #include "math.h"
 #include "solve.h"
 
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define RATIO 0.7
+
 int main(){
   int n, e;
   double alpha;
@@ -29,6 +32,69 @@ void printVertexList(int n, vertex * vlist) {
 }
 
 /* Solves and prints out solution */
+
+double estimate(int n, vertex *vlist, bool visited[n]) {
+  double total = 0;
+  for (int i=0; i<n; i++) {
+    if (!visited[i]) {
+      for (int j=0; j<vlist[i].degree; j++) {
+        if (!visited[vlist[i].edges[j].to]) {
+          total += vlist[i].edges[j].snow;
+          break;
+        }
+      }
+    }
+  }
+  return total;
+}
+
+double minmax(int n, vertex *vlist, bool visited[n], int cur,
+              int path[n], int depth, int curval) {
+  path[depth] = cur;
+  
+  edgeList edges = vlist[cur].edges;
+  int degree = vlist[cur].degree;
+  
+  int first = -1;
+  for (int i=0; i<degree; i++) {
+    if (!visited[edges[i].to]) {
+      first = i;
+      break;
+    }
+  }
+
+  double ret = curval;
+
+  if (first != -1) {
+    ret = minmax(n, vlist, visited, first, path, depth+1,
+                 curval + edges[first].snow);
+    for (int i=first+1; i<degree; i++) {
+      
+      int neighbor = edges[i].to;
+      if (!visited[neighbor]) {
+        visited[neighbor] = true;
+        
+        double est = estimate(n, vlist, visited) + edges[i].snow;
+        if (est * 0.7 >= ret) {
+          double realval = minmax(n, vlist, visited, neighbor,
+                                  path, depth+1, curval + edges[i].snow);
+          if (realval > ret) {
+            ret = realval;
+          }
+        }
+        
+        visited[neighbor] = false;
+      }
+    }
+  } else {
+    printPath(path, depth, curval);
+  }
+  
+  path[depth] = -1;
+
+  return ret;
+      
+}
 
 void solve(int n, vertex *vlist) {
   printVertexList(n, vlist);
