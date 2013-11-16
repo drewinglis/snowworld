@@ -10,10 +10,15 @@ typedef struct elem{
 
 typedef edge* edgeList;
 
-edgeList getEdgeList(int e); 
-int **adjacencyMatrix(int n, edgeList edges, int e); 
-void freeMatrix(int **adjMat, int n); 
-void solve();                        
+typedef struct vertex_t {
+  int degree;
+  edgeList edges;
+} vertex;
+
+edgeList getEdgeList(int e);
+int **adjacencyMatrix(int n, edgeList edges, int e);
+void freeMatrix(int **adjMat, int n);
+void solve();
 
 int main(){
   int n, e;
@@ -21,7 +26,7 @@ int main(){
   scanf("%d %d %lf", &n, &e, &alpha);
   edgeList edges = getEdgeList(e);
   int** adjMat = adjacencyMatrix(n, edges, e);
-  
+
   solve();
 
   freeMatrix(adjMat, n);
