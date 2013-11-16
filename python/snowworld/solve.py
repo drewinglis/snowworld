@@ -4,11 +4,13 @@ import sys
 class Graph:
     # Object representing the graph problem
 
-    def __init__(self, n=0, edges=[[]], edgelist=[]):
+    def __init__(self, n=0, edges=None, edgelist=None):
         # initialize variables
+        #be careful of mutable values as default. Make the default values
+        #below instead
         self.n=n
-        self.edges=edges
-        self.edgelist=edgelist
+        self.edges=edges if edges else [[]]
+        self.edgelist=edgelist if edgelist else []
 
     def neighbors(self,vertex):
         # init list
@@ -59,18 +61,54 @@ def createEMatrix(edgelist,n):
 
 
 
-def solve(G,alpha):
-    raise NotImplemented
+    
 
 
 
 def main():
     (G,alpha) = parse()
     soln=solve(G,alpha)
+    soln = [1]
     print len(soln)
     for v in soln:
         print v 
 
+#####
+class Memoize:
+    def __init__(self, f):
+        self.f = f
+        self.memo = {}
+    def __call__(self, *args):
+        if not args in self.memo:
+            self.memo[args] = self.f(*args)
+        else:
+            pass
+        return self.memo[args] 
+
+#My code:
+
+def make_path_list(G, visited, start):
+    print "path", visited, start
+    #visited is tuple
+    #G is Graph
+    results = []
+    visited =  (start,) + visited
+    for i in xrange(len(G.edges[start])):
+        if (G.edges[start][i]!= -1) and (i not in visited):
+            print "going to", i
+                #assume in goes left to right, put start on left so its
+                #seen first
+            next_step = (make_path_list(G, visited, i))
+            results.extend(next_step)
+    print "results", results
+    if len(results)==0:
+        return [[start]] #one path of length 1
+    else:
+        return [[start]+result for result in results]
+make_path_list = Memoize(make_path_list)
+
+def solve(G,alpha):
+    print make_path_list(G, (), 0)
 
 if __name__ == '__main__':
     main()
