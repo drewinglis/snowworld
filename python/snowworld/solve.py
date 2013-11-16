@@ -68,7 +68,6 @@ def createEMatrix(edgelist,n):
 def main():
     (G,alpha) = parse()
     soln=solve(G,alpha)
-    soln = [1]
     print len(soln)
     for v in soln:
         print v 
@@ -88,27 +87,39 @@ class Memoize:
 #My code:
 
 def make_path_list(G, visited, start):
-    print "path", visited, start
     #visited is tuple
     #G is Graph
     results = []
     visited =  (start,) + visited
     for i in xrange(len(G.edges[start])):
         if (G.edges[start][i]!= -1) and (i not in visited):
-            print "going to", i
                 #assume in goes left to right, put start on left so its
                 #seen first
             next_step = (make_path_list(G, visited, i))
             results.extend(next_step)
-    print "results", results
     if len(results)==0:
         return [[start]] #one path of length 1
     else:
         return [[start]+result for result in results]
 make_path_list = Memoize(make_path_list)
 
+def pick_up_snow(G, alpha, path):
+    total = 0
+    ratio = 1.0
+    current_spot = path[0]
+    for next_spot in path[1:]:
+        edge_weight = G.edges[current_spot][next_spot]
+        total += ratio * edge_weight
+        ratio *= alpha
+        current_spot = next_spot
+    print total, path
+    return total
+
 def solve(G,alpha):
-    print make_path_list(G, (), 0)
+    paths = make_path_list(G, (), 0)
+    best_path = max(paths, key=lambda path: pick_up_snow(G, alpha, path))
+    print pick_up_snow(G, alpha, best_path)
+    return best_path
 
 if __name__ == '__main__':
     main()
