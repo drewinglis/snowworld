@@ -17,26 +17,84 @@ typedef struct vertex_t {
 
 edgeList getEdgeList(int e);
 int **adjacencyMatrix(int n, edgeList edges, int e);
+vertex *getVertexList(int n, edgeList edges, int e);
+void printVertexList(int n, vertex * vlist);
 void freeMatrix(int **adjMat, int n);
 void solve();
 
 int main(){
   int n, e;
   double alpha;
+
   scanf("%d %d %lf", &n, &e, &alpha);
   edgeList edges = getEdgeList(e);
+  vertex *vlist = getVertexList(n, edges, e);
   int** adjMat = adjacencyMatrix(n, edges, e);
-
-  solve();
+  solve(n, vlist);
 
   freeMatrix(adjMat, n);
   return 0;
 }
 
+void printVertexList(int n, vertex * vlist) {
+  printf("%d\n", n);
+  for (int i=0; i<n; i++) {
+    printf("%d: ", i);
+    for (int j=0; j<vlist[i].degree; j++) {
+      printf("%d ",vlist[i].edges[j].to);
+    }
+    printf("\n");
+  }
+}
+
 /* Solves and prints out solution */
 
-void solve(){
-  /* Unimplemented */
+void solve(int n, vertex *vlist) {
+  printVertexList(n, vlist);
+}
+
+int comp(const void * elem1, const void * elem2) {
+  double s1 = ((edge*)elem1)->snow;
+  double s2 = ((edge*)elem2)->snow;
+  if (s1 > s2) return -1;
+  if (s2 > s1) return 1;
+  return 0;
+}
+
+vertex * getVertexList(int n, edgeList edges, int e) {
+  qsort(edges, e, sizeof(edge), comp);
+  
+  vertex * ret = malloc(n * sizeof(vertex));
+  
+  for (int i=0; i<e; i++) {
+    printf("%d %d %lf\n", edges[i].to, edges[i].from, edges[i].snow);
+    ret[edges[i].to].degree++;
+    ret[edges[i].from].degree++;
+  }
+  
+  int count[n];
+  
+  for (int i=0; i<n; i++) {
+    ret[i].edges = malloc(ret[i].degree * sizeof(edge));
+    count[i] = 0;
+  }
+
+  for (int i=0; i<e; i++) {
+    int a = edges[i].to;
+    int b = edges[i].from;
+    int ca = count[a]++;
+    int cb = count[b]++;
+    
+    ret[a].edges[ca].from = a;
+    ret[a].edges[ca].to = b;
+    ret[a].edges[ca].snow = edges[i].snow;
+
+    ret[b].edges[cb].from = b;
+    ret[b].edges[cb].to = a;
+    ret[b].edges[cb].snow = edges[i].snow;
+  }
+  
+  return ret;
 }
 
 /* Given functions */
