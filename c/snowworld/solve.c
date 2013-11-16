@@ -199,6 +199,29 @@ int *greedy(vertexList vertices, edgeList edges, int n) {
   return path;
 }
 
+double estimate2(edgeList edges, int e, bool exclude[], int startIndex, int depth, int n) {
+  double estimate = 0;
+  double alphaFactor = pow(alpha, depth);
+  int counts[n];
+  memset(counts, 0, sizeof(int) * n);
+  counts[startIndex] = 1;
+
+  for (int i = 0; i < e && depth < n; i += 1) {
+    edge current = edges[i];
+
+    if (!exclude[current.to] && !exclude[current.from]
+        && counts[current.to] < 2 && counts[current.from] < 2) {
+      depth += 1;
+      counts[current.to] += 1;
+      counts[current.from] += 1;
+      estimate += alphaFactor * current.snow;
+      alphaFactor *= alpha;
+    }
+  }
+
+  return estimate;
+}
+
 void printMaxDFS(
   vertexList vertices,
   int currentIndex,

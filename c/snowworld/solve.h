@@ -35,5 +35,6 @@ void printPathIfGreater(int *path, int depth, double weight);
 void printPath(int *path, int depth);
 int *greedy(vertexList vertices, edgeList edges, int n);
 void solve(vertexList vertices, edgeList edges, int n);
+double estimate2(edgeList edges, int e, bool exclude[], int startIndex, int depth, int n);
 
 #endif
