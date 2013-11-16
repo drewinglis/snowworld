@@ -117,8 +117,7 @@ int comp(const void * elem1, const void * elem2) {
 
 vertexList getVertexList(int n, edgeList edges, int e) {
   qsort(edges, e, sizeof(edge), comp);
-
-  vertexList ret = malloc(n * sizeof(vertex));
+  vertexList ret = calloc(n, sizeof(vertex));
 
   for (int i=0; i<e; i++) {
     ret[edges[i].to].degree++;
@@ -146,6 +145,7 @@ vertexList getVertexList(int n, edgeList edges, int e) {
     ret[b].edges[cb].to = a;
     ret[b].edges[cb].snow = edges[i].snow;
   }
+  printf("hi 1\n");
 
   return ret;
 }
@@ -209,7 +209,7 @@ int *greedy(vertexList vertices, edgeList edges, int n) {
 
 double estimate2(edgeList edges, int e, bool exclude[], int startIndex, int depth, int n) {
   double estimate = 0;
-  double alphaFactor = pow(alpha, depth);
+  double alphaFactor = 0;//pow(alpha, depth);
   int counts[n];
   memset(counts, 0, sizeof(int) * n);
   counts[startIndex] = 1;
