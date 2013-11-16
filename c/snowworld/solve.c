@@ -144,7 +144,6 @@ vertexList getVertexList(int n, edgeList edges, int e) {
     ret[b].edges[cb].to = a;
     ret[b].edges[cb].snow = edges[i].snow;
   }
-  printf("hi 1\n");
 
   return ret;
 }
