@@ -17,7 +17,6 @@ int main(){
   edgeList edges = getEdgeList(e);
   vertexList vlist = getVertexList(n, edges, e);
   int** adjMat = adjacencyMatrix(n, edges, e);
-  printVertexList(n, vlist);
 
   solve(vlist, edges, n);
 
@@ -55,6 +54,7 @@ double estimate(int n, vertex *vlist, bool visited[n]) {
 
 double minmax(int n, vertex *vlist, bool visited[n], int cur,
               int path[n], int depth, double curval) {
+  //printf("depth %d visiting %d\n", depth, cur);
   path[depth] = cur;
   
   edgeList edges = vlist[cur].edges;
@@ -63,7 +63,7 @@ double minmax(int n, vertex *vlist, bool visited[n], int cur,
   int first = -1;
   for (int i=0; i<degree; i++) {
     if (!visited[edges[i].to]) {
-      first = i;
+      first = edges[i].to;
       break;
     }
   }
@@ -71,8 +71,12 @@ double minmax(int n, vertex *vlist, bool visited[n], int cur,
   double ret = curval;
 
   if (first != -1) {
+    visited[first] = true;
+    //printf("marking %d as visited: %d\n", first, visited[first]);
     ret = minmax(n, vlist, visited, first, path, depth+1,
                  curval + edges[first].snow);
+    visited[first] = false;
+    //printf("unmarking %d as visited\n", first);
     for (int i=first+1; i<degree; i++) {
       
       int neighbor = edges[i].to;
@@ -80,7 +84,9 @@ double minmax(int n, vertex *vlist, bool visited[n], int cur,
         visited[neighbor] = true;
         
         double est = estimate(n, vlist, visited) + edges[i].snow;
+        //    printf("level %d | %lf  %lf\n", depth, est, ret);
         if (est * 0.7 >= ret) {
+          // printf("HELLO\n");
           double realval = minmax(n, vlist, visited, neighbor,
                                   path, depth+1, curval + edges[i].snow);
           if (realval > ret) {
@@ -146,17 +152,19 @@ vertexList getVertexList(int n, edgeList edges, int e) {
 
 /* Solves and prints out solution */
 void solve(vertexList vertices, edgeList edges, int n){
-  /*bool visited[n];
+  bool visited[n];
   int path[n];
   int depth = 0;
 
   memset(visited, false, sizeof(bool)*n);
-  memset(path, -1, sizeof(int)*n);*/
-
+  memset(path, -1, sizeof(int)*n);
+  visited[0] = true;
   //printMaxDFS(vertices, 0, visited, path, 0);
 
-  int *path = greedy(vertices, edges, n);
-  printPath(path, n);
+  //  int *path = greedy(vertices, edges, n);
+  //printPath(path, n);
+
+  double weight = minmax(n, vertices, visited, 0, path, 0, 0);
 }
 
 int *greedy(vertexList vertices, edgeList edges, int n) {
@@ -188,7 +196,7 @@ int *greedy(vertexList vertices, edgeList edges, int n) {
         break;
       }
     }
-
+ 
     if (i == current.degree) {
       break;
     }
