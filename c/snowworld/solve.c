@@ -7,6 +7,9 @@
 
 double alpha;
 
+#define MAX(a,b) ((a) > (b) ? (a) : (b))
+#define RATIO 0.7
+
 int main(){
   int n, e;
 
@@ -33,6 +36,71 @@ void printVertexList(int n, vertexList vlist) {
   }
 }
 
+/* Solves and prints out solution */
+
+double estimate(int n, vertex *vlist, bool visited[n]) {
+  double total = 0;
+  for (int i=0; i<n; i++) {
+    if (!visited[i]) {
+      for (int j=0; j<vlist[i].degree; j++) {
+        if (!visited[vlist[i].edges[j].to]) {
+          total += vlist[i].edges[j].snow;
+          break;
+        }
+      }
+    }
+  }
+  return total;
+}
+
+double minmax(int n, vertex *vlist, bool visited[n], int cur,
+              int path[n], int depth, double curval) {
+  path[depth] = cur;
+  
+  edgeList edges = vlist[cur].edges;
+  int degree = vlist[cur].degree;
+  
+  int first = -1;
+  for (int i=0; i<degree; i++) {
+    if (!visited[edges[i].to]) {
+      first = i;
+      break;
+    }
+  }
+
+  double ret = curval;
+
+  if (first != -1) {
+    ret = minmax(n, vlist, visited, first, path, depth+1,
+                 curval + edges[first].snow);
+    for (int i=first+1; i<degree; i++) {
+      
+      int neighbor = edges[i].to;
+      if (!visited[neighbor]) {
+        visited[neighbor] = true;
+        
+        double est = estimate(n, vlist, visited) + edges[i].snow;
+        if (est * 0.7 >= ret) {
+          double realval = minmax(n, vlist, visited, neighbor,
+                                  path, depth+1, curval + edges[i].snow);
+          if (realval > ret) {
+            ret = realval;
+          }
+        }
+        
+        visited[neighbor] = false;
+      }
+    }
+  } else {
+    printPathIfGreater(path, depth, curval);
+  }
+  
+  path[depth] = -1;
+
+  return ret;
+      
+}
+
 int comp(const void * elem1, const void * elem2) {
   double s1 = ((edge*)elem1)->snow;
   double s2 = ((edge*)elem2)->snow;
@@ -47,7 +115,6 @@ vertexList getVertexList(int n, edgeList edges, int e) {
   vertexList ret = malloc(n * sizeof(vertex));
 
   for (int i=0; i<e; i++) {
-    //printf("%d %d %lf\n", edges[i].to, edges[i].from, edges[i].snow);
     ret[edges[i].to].degree++;
     ret[edges[i].from].degree++;
   }
@@ -162,6 +229,17 @@ void printMaxDFS(
   path[depth] = -1;
   visited[currentIndex] = false;
   return;
+}
+
+void printPathIfGreater(int path[], int depth, double weight) {
+  static double maxweight;
+  if (weight > maxweight) {
+    maxweight = weight;
+    printf("%d\n", depth);
+    for (int i = 0; i < depth; i += 1) {
+      printf("%d\n", path[i]);
+    }
+  }
 }
 
 void printPath(int path[], int depth) {
