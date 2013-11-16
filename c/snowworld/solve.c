@@ -5,16 +5,18 @@
 #include "math.h"
 #include "solve.h"
 
+double alpha;
+
 int main(){
   int n, e;
-  double alpha;
 
   scanf("%d %d %lf", &n, &e, &alpha);
   edgeList edges = getEdgeList(e);
   vertexList vlist = getVertexList(n, edges, e);
   int** adjMat = adjacencyMatrix(n, edges, e);
+  printVertexList(n, vlist);
 
-  solve(NULL, edges, n);
+  solve(vlist, edges, n);
 
   freeMatrix(adjMat, n);
   return 0;
@@ -45,7 +47,7 @@ vertexList getVertexList(int n, edgeList edges, int e) {
   vertexList ret = malloc(n * sizeof(vertex));
 
   for (int i=0; i<e; i++) {
-    printf("%d %d %lf\n", edges[i].to, edges[i].from, edges[i].snow);
+    //printf("%d %d %lf\n", edges[i].to, edges[i].from, edges[i].snow);
     ret[edges[i].to].degree++;
     ret[edges[i].from].degree++;
   }
@@ -77,13 +79,96 @@ vertexList getVertexList(int n, edgeList edges, int e) {
 
 /* Solves and prints out solution */
 void solve(vertexList vertices, edgeList edges, int n){
-  bool visited[n];
-  memset(visited, 0, sizeof(bool)*n);
-  printMaxDFS(vertices, edges[0].to, visited);
+  /*bool visited[n];
+  int path[n];
+  int depth = 0;
+
+  memset(visited, false, sizeof(bool)*n);
+  memset(path, -1, sizeof(int)*n);*/
+
+  //printMaxDFS(vertices, 0, visited, path, 0);
+
+  int *path = greedy(vertices, edges, n);
+  printPath(path, n);
 }
 
-void printMaxDFS(vertexList vertices, int currentVertex, bool visited[]) {
+int *greedy(vertexList vertices, edgeList edges, int n) {
+  bool visited[n];
+  int *path = malloc(n*sizeof(int));
+  int depth = 1;
+  int currentIndex = edges[0].from;
+
+  memset(visited, false, sizeof(bool)*n);
+  memset(path, -1, sizeof(int)*n);
+
+  visited[0] = true;
+  path[0] = 0;
+
+  while (true) {
+    vertex current = vertices[currentIndex];
+    int i;
+    int next;
+
+    visited[currentIndex] = true;
+    path[depth] = currentIndex;
+    depth += 1;
+
+    for (i = 0; i < current.degree; i += 1) {
+      next = current.edges[i].to;
+
+      if (false == visited[next]) {
+        currentIndex = next;
+        break;
+      }
+    }
+
+    if (i == current.degree) {
+      break;
+    }
+
+    next = currentIndex;
+  }
+
+  return path;
+}
+
+void printMaxDFS(
+  vertexList vertices,
+  int currentIndex,
+  bool visited[],
+  int path[],
+  int depth
+) {
+  vertex current = vertices[currentIndex];
+  int next;
+
+  visited[currentIndex] = true;
+  path[depth] = currentIndex;
+  depth += 1;
+
+  for (int i = 0; i < current.degree; i += 1) {
+    next = current.edges[i].to;
+    printf("next: %d\n", next);
+
+    printf("false: %d visited[next]: %d\n", false, visited[next]);
+    if (false == visited[next]) {
+      printMaxDFS(vertices, next, visited, path, depth);
+    }
+  }
+
+  printPath(path, depth);
+
+  depth -= 1;
+  path[depth] = -1;
+  visited[currentIndex] = false;
   return;
+}
+
+void printPath(int path[], int depth) {
+  printf("%d\n", depth);
+  for (int i = 0; i < depth; i += 1) {
+    printf("%d\n", path[i]);
+  }
 }
 
 /* Reads from stdin and forms an edgeList of type edgeList */

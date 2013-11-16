@@ -21,7 +21,15 @@ int **adjacencyMatrix(int n, edgeList edges, int e);
 vertex *getVertexList(int n, edgeList edges, int e);
 void printVertexList(int n, vertex * vlist);
 void freeMatrix(int **adjMat, int n);
-void printMaxDFS(vertexList vertices, int currentVertex, bool visited[]);
+void printMaxDFS(
+  vertexList vertices,
+  int currentVertex,
+  bool visited[],
+  int path[],
+  int depth
+);
+void printPath(int *path, int depth);
+int *greedy(vertexList vertices, edgeList edges, int n);
 void solve(vertexList vertices, edgeList edges, int n);
 
 #endif
