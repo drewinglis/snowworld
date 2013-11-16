@@ -11,7 +11,7 @@ int main(){
 
   scanf("%d %d %lf", &n, &e, &alpha);
   edgeList edges = getEdgeList(e);
-  vertex *vlist = getVertexList(n, edges, e);
+  vertexList vlist = getVertexList(n, edges, e);
   int** adjMat = adjacencyMatrix(n, edges, e);
 
   solve(NULL, edges, n);
@@ -20,7 +20,7 @@ int main(){
   return 0;
 }
 
-void printVertexList(int n, vertex * vlist) {
+void printVertexList(int n, vertexList vlist) {
   printf("%d\n", n);
   for (int i=0; i<n; i++) {
     printf("%d: ", i);
@@ -42,7 +42,7 @@ int comp(const void * elem1, const void * elem2) {
 vertexList getVertexList(int n, edgeList edges, int e) {
   qsort(edges, e, sizeof(edge), comp);
 
-  vertex * ret = malloc(n * sizeof(vertex));
+  vertexList ret = malloc(n * sizeof(vertex));
 
   for (int i=0; i<e; i++) {
     printf("%d %d %lf\n", edges[i].to, edges[i].from, edges[i].snow);
