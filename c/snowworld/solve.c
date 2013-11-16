@@ -11,15 +11,18 @@ double alpha;
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define RATIO 0.7
 
+edgeList global_edges;
+int num_edges;
+
 int main(){
   int n, e;
 
-  scanf("%d %d %lf", &n, &e, &alpha);
-  edgeList edges = getEdgeList(e);
-  vertexList vlist = getVertexList(n, edges, e);
-  int** adjMat = adjacencyMatrix(n, edges, e);
+  scanf("%d %d %lf", &n, &num_edges, &alpha);
+  global_edges = getEdgeList(num_edges);
+  vertexList vlist = getVertexList(n, global_edges, num_edges);
+  int** adjMat = adjacencyMatrix(n, global_edges, num_edges);
 
-  solve(vlist, edges, n);
+  solve(vlist, n);
 
   freeMatrix(adjMat, n);
   return 0;
@@ -68,26 +71,26 @@ double minmax(int n, vertex *vlist, bool visited[n], int cur,
   }
 
   double ret = curval;
-
+  double alphaFactor = pow(alpha, depth);
   if (first != -1) {
     visited[first] = true;
-    //printf("marking %d as visited: %d\n", first, visited[first]);
     ret = minmax(n, vlist, visited, first, path, depth+1,
-                 curval + edges[first].snow);
+                 curval + alphaFactor * edges[first].snow);
     visited[first] = false;
-    //printf("unmarking %d as visited\n", first);
     for (int i=first+1; i<degree; i++) {
 
       int neighbor = edges[i].to;
       if (!visited[neighbor]) {
         visited[neighbor] = true;
-
-        double est = estimate(n, vlist, visited) + edges[i].snow;
-        //    printf("level %d | %lf  %lf\n", depth, est, ret);
-        if (est * 0.7 >= ret) {
-          // printf("HELLO\n");
-          double realval = minmax(n, vlist, visited, neighbor,
-                                  path, depth+1, curval + edges[i].snow);
+#if 0
+        double est = estimate2(visited, neighbor, depth+1, n) +
+          alphaFactor * edges[i].snow;
+#else
+        double est = estimate(n, vlist, visited);
+#endif
+        if (est * RATIO >= ret) {
+          double realval = minmax(n, vlist, visited, neighbor, path, depth+1,
+                                  curval + alphaFactor * edges[i].snow);
           if (realval > ret) {
             ret = realval;
           }
@@ -126,7 +129,7 @@ vertexList getVertexList(int n, edgeList edges, int e) {
   int count[n];
 
   for (int i=0; i<n; i++) {
-    ret[i].edges = malloc(ret[i].degree * sizeof(edge));
+    ret[i].edges = calloc(ret[i].degree, sizeof(edge));
     count[i] = 0;
   }
 
@@ -149,7 +152,7 @@ vertexList getVertexList(int n, edgeList edges, int e) {
 }
 
 /* Solves and prints out solution */
-void solve(vertexList vertices, edgeList edges, int n){
+void solve(vertexList vertices, int n){
   bool visited[n];
   int path[n];
   int depth = 0;
@@ -205,15 +208,15 @@ int *greedy(vertexList vertices, edgeList edges, int n) {
   return path;
 }
 
-double estimate2(edgeList edges, int e, bool exclude[], int startIndex, int depth, int n) {
+double estimate2(bool exclude[], int startIndex, int depth, int n) {
   double estimate = 0;
-  double alphaFactor = 0;//pow(alpha, depth);
+  double alphaFactor = pow(alpha, depth);
   int counts[n];
   memset(counts, 0, sizeof(int) * n);
   counts[startIndex] = 1;
 
-  for (int i = 0; i < e && depth < n; i += 1) {
-    edge current = edges[i];
+  for (int i = 0; i < num_edges && depth < n; i += 1) {
+    edge current = global_edges[i];
 
     if (!exclude[current.to] && !exclude[current.from]
         && counts[current.to] < 2 && counts[current.from] < 2) {
@@ -264,10 +267,14 @@ void printPathIfGreater(int path[], int depth, double weight) {
   static double maxweight;
   if (weight > maxweight) {
     maxweight = weight;
+#if 1
     printf("%d\n", depth);
     for (int i = 0; i < depth; i += 1) {
       printf("%d\n", path[i]);
     }
+#else
+    printf("%lf\n", weight);
+#endif
   }
 }
 
